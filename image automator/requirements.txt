@@ -1,0 +1,5 @@
+elasticsearch==8.13.0
+numpy==1.26.4
+pandas==2.2.2
+sentence_transformers==2.7.0
+Requests==2.31.0
