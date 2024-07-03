@@ -8,6 +8,13 @@ import shutil
 from retrying import retry
 from datetime import datetime
 
+
+"""
+This is the scrapper for the Baseline version of the schema for semantic search.
+This version has only one vector. (field to be vectorized: text_to_embed)
+"""
+
+#basic json for all products
 base_json= {
     'id':"",
     'seq': "",
@@ -20,6 +27,7 @@ base_json= {
     'subfamily': "",
 }
 
+#aux obj to know the biggest document
 name_len = {
     "url" : "",
     "len" : "",
@@ -31,10 +39,12 @@ max_len = 0
 def clean_text(text):
     return re.sub(r'\s+', ' ', text).strip()
 
+#Generates unique ID using url, sequence number and json document type.
 def generate_hash(url, seq, j_type):
     combined_str = f"{url}_{j_type}_{seq}"
     return url+"!"+ hashlib.sha256(combined_str.encode()).hexdigest()
 
+#Extracts general fields for all types of json docs. Fields extracted: Title, Url, Thumbnail and Subfamily.
 def extract_general_fields(soup):
     title_tag = soup.find('title')
     title = title_tag.get_text(strip=True).split("|")[0].strip() if title_tag else 'No Title Found'
@@ -56,6 +66,7 @@ def extract_general_fields(soup):
     else:
         base_json.pop('subfamily', None)
 
+#Extracts key aspects from html.
 def extract_key_specs(soup):
 
     key_specs_json = base_json.copy()
@@ -97,6 +108,7 @@ def extract_key_specs(soup):
     
     return [key_specs_json]
 
+#Extracts overview from html.
 def extract_overview(soup):
     overview_json = base_json.copy()
 
@@ -128,6 +140,7 @@ def extract_overview(soup):
 
     return [overview_json]
 
+#Extracts benefits from html.
 def extract_benefits(soup):
     benefits_json_list = []
     
@@ -180,6 +193,7 @@ def extract_benefits(soup):
 
     return benefits_json_list
 
+#Extracts features from html.
 def extract_features(soup):
     features_json_list = []
     seq = 0
@@ -235,6 +249,7 @@ def extract_features(soup):
     
     return features_json_list
 
+#Extracts overview from html.
 def extract_individual_specs(soup):
     specs_json_list = []
     seq = 0
@@ -283,6 +298,7 @@ def extract_individual_specs(soup):
     
     return specs_json_list
 
+#Extracts standart and optional equipment from html.
 def extract_equipment(soup, optional=False):
     equipment_json_list = []
     seq = 0  
@@ -368,12 +384,7 @@ def extract_equipment(soup, optional=False):
 
     return equipment_json_list
 
-def save_features_to_txt(features_json_list, filename):
-    with open(filename, 'w', encoding='utf-8') as file:
-        for feature_json in features_json_list:
-            json_str = json.dumps(feature_json, ensure_ascii=False, indent=4)
-            file.write(json_str + ' \n ')
-
+#Extracts tech and services from html.
 def extract_technologies_and_services(soup):
     technologies_services_list = []
     seq = 0
@@ -421,6 +432,7 @@ def extract_technologies_and_services(soup):
 
     return technologies_services_list
 
+#Extracts related products from html.
 def extract_related_products(soup):
     related_products_list = []
     seq = 0
@@ -470,6 +482,7 @@ def extract_related_products(soup):
 
     return related_products_list
 
+#Extracts all sections and saves everything in jsons.
 def html_to_json(html_file_path,save_path):
     txt_name = html_file_path.split("/")[1].split(".")[0]
 
@@ -503,6 +516,7 @@ def html_to_json(html_file_path,save_path):
     save_json(all_jsons,save_path)
     print("Saving: " +txt_name)
 
+#Takes an html file from the /html path and calls html_to_json in order to split it in sections. 
 def file_to_json(filepath,save_path):
     with open(filepath, 'r') as file:
         for line in file:
@@ -510,6 +524,7 @@ def file_to_json(filepath,save_path):
             html = "htmls/"+html
             html_to_json(html,save_path)
 
+#Saves a single json file from an html in the given save_path.
 def save_json(json_info,save_path):
     for json_data in json_info:
         if json_data:
@@ -518,14 +533,16 @@ def save_json(json_info,save_path):
             with open(filepath, "w") as file:
                 file.write(json.dumps(json_data, indent=4))
 
+#Responsible for the indexing all json files one by one (in order to get the ones that failed)
 @retry(stop_max_attempt_number=3, wait_fixed=5000)
 def send_json_with_basic_auth(json_data):
 
+    #Index profile
     url = "https://caterpillares-dev.b.lucidworks.cloud:443/api/apps/P3_Semantic_Search_POC/index/P3_Semantic_Search_POC"
     #url = "https://caterpillares-dev.b.lucidworks.cloud:443/api/apps/P3_Semantic_Search_POC/index/P3_Semantic_Search_POC_B"
 
-    username = "josue.vargas@accenture.com"
-    password= "josue@LW01"
+    username = "example@cat.com"
+    password= "example@LW01"
 
     headers = {
         "Content-Type": "application/json"
@@ -542,11 +559,16 @@ def send_json_with_basic_auth(json_data):
         #print(response.text)
         response.raise_for_status()
 
+#Saves json files from html in local, receives the name of the folder 
 def local_to_index(directory_path, start_position=0):
     start_time = datetime.now()
     print(start_time)
-    filenames = sorted(os.listdir(directory_path))
     
+    if not os.path.exists(directory_path):
+        os.makedirs(directory_path)
+        return []
+    
+    filenames = sorted(os.listdir(directory_path))
     failed_docs = []
     
     for idx, filename in enumerate(filenames):
@@ -560,38 +582,41 @@ def local_to_index(directory_path, start_position=0):
                 try:
                     data = json.load(file)
                     send_json_with_basic_auth(data)
-                    print("Indexing: "+filename)
+                    print("Indexing: " + filename)
                 except Exception as e:
-                    print(f"failed document: {filename}")
+                    print(f"Failed document: {filename}")
                     failed_docs.append(filename)
     
     end_time = datetime.now()
     print(end_time - start_time)
-    create_execution_report(len(failed_docs),start_time,end_time,"")
+    create_execution_report(len(failed_docs), start_time, end_time, "")
     return failed_docs
 
-#def copy_failed_docs(failed_docs, source_directory, destination_directory):
-#    if not os.path.exists(destination_directory):
-#        os.makedirs(destination_directory)
-#
-#    for filename in failed_docs:
-#        source_path = os.path.join(source_directory, filename)
-#        destination_path = os.path.join(destination_directory, filename)
-#        
-#        if os.path.isfile(source_path):
-#            try:
-#                shutil.copy2(source_path, destination_path)
-#                print(f"Copied {filename} to {destination_directory}")
-#            except Exception as e:
-#                print(f"Failed to copy {filename}: {e}")
-#        else:
-#            print(f"File not found: {filename}")
+#Takes an array of filenames and searches them in the source directory, then it copies them in the destination directory.
+def copy_failed_docs(failed_docs, source_directory, destination_directory):
+    if not os.path.exists(destination_directory):
+        os.makedirs(destination_directory)
 
+    for filename in failed_docs:
+        source_path = os.path.join(source_directory, filename)
+        destination_path = os.path.join(destination_directory, filename)
+        
+        if os.path.isfile(source_path):
+            try:
+                shutil.copy2(source_path, destination_path)
+                print(f"Copied {filename} to {destination_directory}")
+            except Exception as e:
+                print(f"Failed to copy {filename}: {e}")
+        else:
+            print(f"File not found: {filename}")
+
+#Saves all the filenames of the failed documents into a txt
 def save_failed_docs_to_file(failed_docs, file_path):
     with open(file_path, 'w', encoding='utf-8') as file:
         for doc_id in failed_docs:
             file.write(f"{doc_id}\n")
 
+#Creates an execution report with start, end time and number of failed docs.
 def create_execution_report(failed_docs_count, start_time, end_time, report_directory=""):
     total_time = end_time - start_time
     report_filename = f"execution_{datetime.now().strftime('%Y%m%d%H%M%S')}.txt"
@@ -606,7 +631,20 @@ def create_execution_report(failed_docs_count, start_time, end_time, report_dire
     print(f"Execution report saved to {report_path}")
 
 
+#This variable should have the name of the path 
 json_saving_path = "testing_jsons"
-#file_to_json("all_htmls.txt",json_saving_path)
+
+#This line will take every html name from the txt and it is going to extract its sections, save them in json format inside the json saving path we just declared
+#If you already have the json files, you can comment this line.
+file_to_json("all_htmls.txt",json_saving_path)
+
+#This line will index all json files that we just generated and the ones that failed are going to be inside the variable remaining_docs.
 remaining_docs = local_to_index(json_saving_path)
-save_failed_docs_to_file(remaining_docs,"failed_docs.txt")
+
+#We save the documents that failed in a txt
+failed_docs_txt_name = f"failed_docs_{datetime.now().strftime('%Y%m%d%H%M%S')}.txt"
+save_failed_docs_to_file(remaining_docs,failed_docs_txt_name)
+
+
+#We save a copy of the documents that failed in a new directory, so it is easier for you to modify the json_saving_path in the function file_to_json, to re-index again.
+copy_failed_docs(remaining_docs,"htmls","failed_documents")
