@@ -1,0 +1,7 @@
+{
+  "id": "P3_Semantic_Search_POC_B",
+  "queryPipeline": "P3_Semantic_Search_POC_B",
+  "collection": "P3_Semantic_Search_POC_B",
+  "searchHandler": "select",
+  "additionalProperties": {}
+}

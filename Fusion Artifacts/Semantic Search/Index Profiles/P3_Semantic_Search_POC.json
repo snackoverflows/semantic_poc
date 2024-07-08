@@ -1,0 +1,8 @@
+{
+  "id": "P3_Semantic_Search_POC",
+  "indexPipeline": "P3_Semantic_Search_POC",
+  "collection": "P3_Semantic_Search_POC",
+  "parser": "P3_Semantic_Search_POC",
+  "params": [],
+  "additionalProperties": {}
+}

@@ -1,0 +1,52 @@
+{
+  "id": "P3_Semantic_Search_POC",
+  "stages": [
+    {
+      
+      "serviceId": "ml-model-service",
+      "modelId": "cat-query-embeddings-model",
+      "failOnError": true,
+      "inputScript": "var modelInput = new java.util.HashMap()\nmodelInput.put(\"text\", request.getFirstParam(\"q\"));\nmodelInput\n\n/*\n\nThis script must contruct a HashMap containing fields and values to be sent to the ML model service.\nThe field names and values will depend on the input schema of the model.\nGenerally, you'll be reading fields and values from the request/context/response and placing them into a HashMap.\n\nValue types supported are:\n- String\n- Double\n- String[]\n- double[]\n- List<String>\n- List<Number>\n\nThis script receives these objects and can be referenced in your script:\n- request\n- response\n- context\n- log (Logger useful for debugging)\n\nThe last line of the script must be a reference to the HashMap object you created.\n\nExample 1: Single string parameter from request to modelInput HashMap\nvar modelInput = new java.util.HashMap()\nmodelInput.put(\"input_1\", request.getFirstParam(\"q\"))\nmodelInput\n\nExample 2: List of strings from request to modelInput HashMap\nvar modelInput = new java.util.HashMap()\nmodelInput.put(\"input_1\", request.getParam(\"q\")) // request.getParam returns a Collection\nmodelInput\n\nExample 3: List of numeric values from request to modelInput HashMap\nvar modelInput = new java.util.HashMap()\nvar list = new java.util.ArrayList()\nlist.add(Double.parseDouble(request.getFirstParam(\"numeric_1\")))\nlist.add(Double.parseDouble(request.getFirstParam(\"numeric_2\")))\nmodelInput.put(\"input_1\", list)\nmodelInput\n\nExample 4: To use the spark ml based models, use the below code\nvar modelInput = new java.util.HashMap()\nmodelInput.put(\"concatField\", request.getFirstParam(\"q\"))\nmodelInput\n\n*/\n",
+      "outputScript": "var vector_query = \"{!knn f=embeddings_vector topK=60000}\" + modelOutput[\"output1\"]\nrequest.putSingleParam(\"q\", vector_query);\n/*\n\nThis output script receives the output prediction from the ML model service as a HashMap called \"modelOutput\".\nMost of the time this is used to place prediction results in the request or context for downstream pipeline stages\nto consume.\n\nThis script receives these objects and can be referenced in your script:\n- modelOutput (a HashMap containing fields/values returned from ML model service)\n- request\n- response\n- context\n- log (Logger useful for debugging)\n\nExample: Place predictedLabel (string) on request\nrequest.putSingleParam(\"sentiment\", modelOutput.get(\"predictedLabel\"))\n\n*/\n",
+      "type": "ml-query",
+      "skip": false,
+      "label": "Get query vector"
+    },
+    {
+      
+      "fieldFacets": [
+        {
+          "field": "subfamily_s",
+          "sort": "count",
+          "limit": 100,
+          "minCount": 1,
+          "missing": false
+        }
+      ],
+      "rangeFacets": [],
+      "type": "facet",
+      "skip": false,
+      "label": "Facets"
+    },
+    {
+      
+      "script": "function (request, response, ctx) {\n  logger.info(\"requestis: \" + request.getParams())\n}",
+      "shareState": true,
+      "type": "javascript-query",
+      "skip": true,
+      "label": "Print Request"
+    },
+    {
+      
+      "httpMethod": "POST",
+      "allowFederatedSearch": false,
+      "preferredReplicaType": "pull",
+      "type": "solr-query",
+      "skip": false,
+      "responseSignalsEnabled": false
+    }
+  ],
+  "properties": {
+    "secretSourcePipelineId": "P3_Semantic_Search_POC"
+  }
+}

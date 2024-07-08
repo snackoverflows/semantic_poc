@@ -1,0 +1,620 @@
+{
+  "id": "CAT",
+  "stages": [
+    {
+      
+      "script": "function (request, response, ctx) {\n\n    if (request.getParams() !== null) {\n        var sParams = request.getParam(\"s\");\n        if (sParams !== undefined) {\n            var qf=  sParams.split(\" \");\n             if (qf[1] === \"asc\") {\n              ctx.put(\"sortParam\",qf[1]);\n             }\n             else if ((qf[0] === \"desc\")){\n               ctx.put(\"sortParam\",qf[1]);\n             }\n          \n            \n            }\n        }\n    \n}\n\n",
+      "shareState": true,
+      "type": "javascript-query",
+      "skip": true,
+      "label": "Check for Sort",
+      "condition": ""
+    },
+    {
+      
+      "sortField": "fetchedDate_dt ",
+      "sortOrder": "asc",
+      "failOnError": false,
+      "type": "result-doc-field-sorting",
+      "skip": true,
+      "label": "Sort PublicationDate ASC",
+      "condition": "ctx.getParam(\"\")"
+    },
+    {
+      
+      "script": "function (request, response, ctx) {\n  var Arrays = java.util.Arrays;\n  \n  var restrictedQueries = [\"longwall\",\"roof support\",\"afc\",\"bsl\",\"cst\",\"pmc\",\"plow\",\"shearer\"];\n  var query = request.getFirstParam('q');\n  var restrictedQueriesList = Arrays.asList(restrictedQueries);\n    \n  for (var restrictedQuery in restrictedQueriesList){\n      if (query.toLowerCase() === restrictedQueriesList[restrictedQuery].toString().toLowerCase()){\n        logger.warn(\"logged query ....\"+ query.toLowerCase());\n        //request.addParam(\"clearResponseForLongWallProducts\", true);\n        request.removeParam(\"q\");\n        request.addParam(\"q\",\"\");\n    }\n  }  \n\n  \n}",
+      "shareState": true,
+      "type": "javascript-query",
+      "skip": false,
+      "label": "Restrict search for Longwall Products"
+    },
+    {
+      
+      "params": [
+        {
+          "key": "fq",
+          "value": "_lw_data_source_s:CAT-com _lw_data_source_s:parts-prod",
+          "policy": "append"
+        },
+        {
+          "key": "hl.bs.type",
+          "value": "LINE",
+          "policy": "append"
+        },
+        {
+          "key": "tie",
+          "value": "1.0",
+          "policy": "append"
+        },
+        {
+          "key": "mm",
+          "value": "100%",
+          "policy": "append"
+        }
+      ],
+      "type": "set-params",
+      "skip": false,
+      "label": ""
+    },
+    {
+      
+      "params": [
+        {
+          "key": "json.facet",
+          "value": "{ ia_apex_force:{type:terms, field:ia_apex_force, domain:{excludeTags:ia_apex_force}, limit: -1}, ia_applications:{type:terms, field:ia_applications, domain:{excludeTags:ia_applications}, limit: -1}, ia_attachment_type:{type:terms, field:ia_attachment_type, domain:{excludeTags:ia_attachment_type}, limit: -1}, ia_blade_width:{type:terms, field:ia_blade_width, domain:{excludeTags:ia_blade_width}, limit: -1}, ia_brand:{type:terms, field:ia_brand, domain:{excludeTags:ia_brand}, limit: -1}, ia_compaction_force:{type:terms, field:ia_compaction_force, domain:{excludeTags:ia_compaction_force}, limit: -1}, ia_compaction_width:{type:terms, field:ia_compaction_width, domain:{excludeTags:ia_compaction_width}, limit: -1}, ia_conical_bits_per_drum_width:{type:terms, field:ia_conical_bits_per_drum_width, domain:{excludeTags:ia_conical_bits_per_drum_width}, limit: -1}, ia_content_type:{type:terms, field:ia_content_type, domain:{excludeTags:ia_content_type}, limit: -1}, ia_country_of_use:{type:terms, field:ia_country_of_use, domain:{excludeTags:ia_country_of_use}, limit: -1}, ia_cutting_type:{type:terms, field:ia_cutting_type, domain:{excludeTags:ia_cutting_type}, limit: -1}, ia_cutting_width:{type:terms, field:ia_cutting_width, domain:{excludeTags:ia_cutting_width}, limit: -1}, ia_dig_depth_requirement:{type:terms, field:ia_dig_depth_requirement, domain:{excludeTags:ia_dig_depth_requirement}, limit: -1}, ia_drive_method:{type:terms, field:ia_drive_method, domain:{excludeTags:ia_drive_method}, limit: -1}, ia_drive_shaft_torque_max_pressure:{type:terms, field:ia_drive_shaft_torque_max_pressure, domain:{excludeTags:ia_drive_shaft_torque_max_pressure}, limit: -1}, ia_drum_type:{type:terms, field:ia_drum_type, domain:{excludeTags:ia_drum_type}, limit: -1}, ia_duty:{type:terms, field:ia_duty, domain:{excludeTags:ia_duty}, limit: -1}, ia_emission_level:{type:terms, field:ia_emission_level, domain:{excludeTags:ia_emission_level}, limit: -1}, ia_emissions:{type:terms, field:ia_emissions, domain:{excludeTags:ia_emissions}, limit: -1}, ia_energy_class:{type:terms, field:ia_energy_class, domain:{excludeTags:ia_energy_class}, limit: -1}, ia_engine_model:{type:terms, field:ia_engine_model, domain:{excludeTags:ia_engine_model}, limit: -1}, ia_engine_power:{type:terms, field:ia_engine_power, domain:{excludeTags:ia_engine_power}, limit: -1}, ia_engine_type:{type:terms, field:ia_engine_type, domain:{excludeTags:ia_engine_type}, limit: -1}, ia_equipment_type:{type:terms, field:ia_equipment_type, domain:{excludeTags:ia_equipment_type}, limit: -1}, ia_frequency:{type:terms, field:ia_frequency, domain:{excludeTags:ia_frequency}, limit: -1}, ia_fuel_type:{type:terms, field:ia_fuel_type, domain:{excludeTags:ia_fuel_type}, limit: -1}, ia_get_options:{type:terms, field:ia_get_options, domain:{excludeTags:ia_get_options}, limit: -1}, ia_goal:{type:terms, field:ia_goal, domain:{excludeTags:ia_goal}, limit: -1}, ia_horsepower:{type:terms, field:ia_horsepower, domain:{excludeTags:ia_horsepower}, limit: -1}, ia_industries:{type:terms, field:ia_industries, domain:{excludeTags:ia_industries}, limit: -1}, ia_industry:{type:terms, field:ia_industry, domain:{excludeTags:ia_industry}, limit: -1}, ia_intake_width:{type:terms, field:ia_intake_width, domain:{excludeTags:ia_intake_width}, limit: -1}, ia_machine_compatibility:{type:terms, field:ia_machine_compatibility, domain:{excludeTags:ia_machine_compatibility}, limit: -1}, ia_machine_model:{type:terms, field:ia_machine_model, domain:{excludeTags:ia_machine_model}, limit: -1}, ia_machine_operating_weight:{type:terms, field:ia_machine_operating_weight, domain:{excludeTags:ia_machine_operating_weight}, limit: -1}, ia_machine_type:{type:terms, field:ia_machine_type, domain:{excludeTags:ia_machine_type}, limit: -1}, ia_max_blows_per_minute:{type:terms, field:ia_max_blows_per_minute, domain:{excludeTags:ia_max_blows_per_minute}, limit: -1}, ia_max_depth_of_cut:{type:terms, field:ia_max_depth_of_cut, domain:{excludeTags:ia_max_depth_of_cut}, limit: -1}, ia_maximum_cut_depth:{type:terms, field:ia_maximum_cut_depth, domain:{excludeTags:ia_maximum_cut_depth}, limit: -1}, ia_maximum_cutting_depth:{type:terms, field:ia_maximum_cutting_depth, domain:{excludeTags:ia_maximum_cutting_depth}, limit: -1}, ia_maximum_dig_depth:{type:terms, field:ia_maximum_dig_depth, domain:{excludeTags:ia_maximum_dig_depth}, limit: -1}, ia_maximum_drum_width:{type:terms, field:ia_maximum_drum_width, domain:{excludeTags:ia_maximum_drum_width}, limit: -1}, ia_maximum_trailer_capacity:{type:terms, field:ia_maximum_trailer_capacity, domain:{excludeTags:ia_maximum_trailer_capacity}, limit: -1}, ia_model:{type:terms, field:ia_model, domain:{excludeTags:ia_model}, limit: -1}, ia_net_power:{type:terms, field:ia_net_power, domain:{excludeTags:ia_net_power}, limit: -1}, ia_next_generation:{type:terms, field:ia_next_generation, domain:{excludeTags:ia_next_generation}, limit: -1}, ia_number_of_teeth:{type:terms, field:ia_number_of_teeth, domain:{excludeTags:ia_number_of_teeth}, limit: -1}, ia_operating_weight:{type:terms, field:ia_operating_weight, domain:{excludeTags:ia_operating_weight}, limit: -1}, ia_overall_width:{type:terms, field:ia_overall_width, domain:{excludeTags:ia_overall_width}, limit: -1}, ia_payload:{type:terms, field:ia_payload, domain:{excludeTags:ia_payload}, limit: -1}, ia_power:{type:terms, field:ia_power, domain:{excludeTags:ia_power}, limit: -1}, ia_power_net:{type:terms, field:ia_power_net, domain:{excludeTags:ia_power_net}, limit: -1}, ia_preferred_lift_path:{type:terms, field:ia_preferred_lift_path, domain:{excludeTags:ia_preferred_lift_path}, limit: -1}, ia_primary_application:{type:terms, field:ia_primary_application, domain:{excludeTags:ia_primary_application}, limit: -1}, ia_primary_ground_conditions:{type:terms, field:ia_primary_ground_conditions, domain:{excludeTags:ia_primary_ground_conditions}, limit: -1}, ia_product_type:{type:terms, field:ia_product_type, domain:{excludeTags:ia_product_type}, limit: -1}, ia_rated_operating_capacity_50_tip_load:{type:terms, field:ia_rated_operating_capacity_50_tip_load, domain:{excludeTags:ia_rated_operating_capacity_50_tip_load}, limit: -1}, ia_rating_kw_kva:{type:terms, field:ia_rating_kw_kva, domain:{excludeTags:ia_rating_kw_kva}, limit: -1}, ia_required_hydraulic_flow_range:{type:terms, field:ia_required_hydraulic_flow_range, domain:{excludeTags:ia_required_hydraulic_flow_range}, limit: -1}, ia_sound_supression:{type:terms, field:ia_sound_supression, domain:{excludeTags:ia_sound_supression}, limit: -1}, ia_specialized_excavator_equipment:{type:terms, field:ia_specialized_excavator_equipment, domain:{excludeTags:ia_specialized_excavator_equipment}, limit: -1}, ia_specialized_loader_equipment:{type:terms, field:ia_specialized_loader_equipment, domain:{excludeTags:ia_specialized_loader_equipment}, limit: -1}, ia_subindustry:{type:terms, field:ia_subindustry, domain:{excludeTags:ia_subindustry}, limit: -1}, ia_task:{type:terms, field:ia_task, domain:{excludeTags:ia_task}, limit: -1}, ia_technology_needs:{type:terms, field:ia_technology_needs, domain:{excludeTags:ia_technology_needs}, limit: -1}, ia_throat_force:{type:terms, field:ia_throat_force, domain:{excludeTags:ia_throat_force}, limit: -1}, ia_throw_distance:{type:terms, field:ia_throw_distance, domain:{excludeTags:ia_throw_distance}, limit: -1}, ia_tip_force:{type:terms, field:ia_tip_force, domain:{excludeTags:ia_tip_force}, limit: -1}, ia_tool_spacing:{type:terms, field:ia_tool_spacing, domain:{excludeTags:ia_tool_spacing}, limit: -1}, ia_unit_weight:{type:terms, field:ia_unit_weight, domain:{excludeTags:ia_unit_weight}, limit: -1}, ia_weight:{type:terms, field:ia_weight, domain:{excludeTags:ia_weight}, limit: -1}, ia_weight_range:{type:terms, field:ia_weight_range, domain:{excludeTags:ia_weight_range}, limit: -1}, ia_wheel_widths:{type:terms, field:ia_wheel_widths, domain:{excludeTags:ia_wheel_widths}, limit: -1}, facet_doc_type:{type:terms, field:facet_doc_type, domain:{excludeTags:facet_doc_type}, limit: -1} }",
+          "policy": "append"
+        }
+      ],
+      "type": "set-params",
+      "skip": false,
+      "label": "Add json.facets [Phase 2]"
+    },
+    {
+      
+      "params": [
+        {
+          "key": "bq",
+          "value": "_lw_data_source_s:(CAT-com)^5 product_ss:(Equipment)^3",
+          "policy": "append"
+        }
+      ],
+      "type": "set-params",
+      "skip": false,
+      "label": "Boost cat.com results "
+    },
+    {
+      
+      "paramToTag": "q",
+      "spell_corrections_enabled": true,
+      "phrase_boosting_enabled": true,
+      "tail_rewrites_enabled": true,
+      "phraseBoost": 2.0,
+      "phraseSlop": 10,
+      "synonymExpansionBoost": 2.0,
+      "synonym_expansion_enabled": true,
+      "remove_words_enabled": true,
+      "overlaps": "longest_dominant_right",
+      "params": [],
+      "maxWaitMs": 500,
+      "type": "text-tagger",
+      "skip": false
+    },
+    {
+      
+      "numRecommendations": 10,
+      "numSignals": 100,
+      "aggrType": "click@doc_id,filters,query",
+      "boostId": "id",
+      "boostingMethod": "query-param",
+      "boostingParam": "boost",
+      "queryParams": [
+        {
+          "key": "qf",
+          "value": "query_t"
+        },
+        {
+          "key": "pf",
+          "value": "query_t^50"
+        },
+        {
+          "key": "pf",
+          "value": "query_t~3^20"
+        },
+        {
+          "key": "pf2",
+          "value": "query_t^20"
+        },
+        {
+          "key": "pf2",
+          "value": "query_t~3^10"
+        },
+        {
+          "key": "pf3",
+          "value": "query_t^10"
+        },
+        {
+          "key": "pf3",
+          "value": "query_t~3^5"
+        },
+        {
+          "key": "boost",
+          "value": "map(query({!field f=query_s v=$q}),0,0,1,20)"
+        },
+        {
+          "key": "mm",
+          "value": "50%"
+        },
+        {
+          "key": "defType",
+          "value": "edismax"
+        },
+        {
+          "key": "sort",
+          "value": "score desc, weight_d desc"
+        },
+        {
+          "key": "fq",
+          "value": "weight_d:[* TO *]"
+        }
+      ],
+      "rollupField": "doc_id_s",
+      "rollupWeightField": "weight_d",
+      "weightExpression": "math:log(weight_d + 1) + 10 * math:log(score+1)",
+      "rollupWeightStrategy": "max",
+      "queryParamToBoost": "q",
+      "includeEnrichedQuery": false,
+      "type": "recommendation",
+      "skip": false
+    },
+    {
+      
+      "rows": 10,
+      "start": 0,
+      "sortOrder": [],
+      "queryFields": [
+        {
+          "field": "path_tokenized",
+          "boost": 2.0
+        },
+        {
+          "field": "product_line_t",
+          "boost": 3.0
+        },
+        {
+          "field": "NAME_t",
+          "boost": 2.8
+        },
+        {
+          "field": "PARTNUMBER_t",
+          "boost": 5.0
+        },
+        {
+          "field": "ALT_ID",
+          "boost": 5.0
+        },
+        {
+          "field": "description_t",
+          "boost": 2.0
+        },
+        {
+          "field": "title_exact",
+          "boost": 25.0
+        },
+        {
+          "field": "heading1_exact",
+          "boost": 25.0
+        },
+        {
+          "field": "partnumber_exact",
+          "boost": 15.0
+        },
+        {
+          "field": "title_en_US",
+          "boost": 15.0
+        },
+        {
+          "field": "body_en_US",
+          "boost": 1.5
+        },
+        {
+          "field": "heading_en_US",
+          "boost": 5.0
+        },
+        {
+          "field": "part_suggest_edge",
+          "boost": 5.0
+        },
+        {
+          "field": "title_suggest",
+          "boost": 5.0
+        },
+        {
+          "field": "part_suggest_number",
+          "boost": 5.0
+        },
+        {
+          "field": "model_name_leaf",
+          "boost": 20.0
+        },
+        {
+          "field": "model_name_leaf_variant",
+          "boost": 15.0
+        }
+      ],
+      "returnFields": [
+        "id",
+        "body_t",
+        "title_t",
+        "PARTNUMBER_t",
+        "NAME_t",
+        "FULLIMAGE_t",
+        "image_search_results_s",
+        "url",
+        "lastModified_dt",
+        "description_t",
+        "partnumber_exact"
+      ],
+      "returnScore": false,
+      "type": "search-fields",
+      "skip": false,
+      "label": "Query Fields [Phase 2 Partial]"
+    },
+    {
+      
+      "script": "function (request, response, ctx) {\n    if (request.getParams() !== null) {\n        var qfParams = request.getParam(\"qf\");\n        if (qfParams !== undefined) {\n            request.removeParam(\"qf\");\n            for (var i = 0; i < qfParams.length; i++) {\n                var qf = qfParams[i].split(\"^\");\n                if (qf[0] === \"part_suggest_number\") {\n                    qfPartSuggestField = qf[0]+ \"^\" + 15;\n\n                    request.addParam(\"qf\", qfPartSuggestField);\n                } else {\n                    request.addParam(\"qf\", qfParams[i]);\n                }\n            }\n        }\n    }\n}\n",
+      "shareState": true,
+      "type": "javascript-query",
+      "skip": false,
+      "label": "Boost part_suggest_number [Phase 2]",
+      "condition": "request.hasParam(\"q\") && /^([A-Za-z0-9]{0,3})?[\\-\\s]*([A-Za-z0-9]{0,4})?$/.test(request.getFirstParam(\"q\")) && request.getFirstParam(\"q\").replace(/[\\s\\-]+/, \"\").length > 1"
+    },
+    {
+      
+      "params": [
+        {
+          "key": "bq",
+          "value": "doc_content_type:\"Class\"^15 & doc_content_type:\"Family Page\"^13 & doc_content_type:\"Sub-Family Page\"^10 & doc_content_type:\"Landing Page\"^8",
+          "policy": "append"
+        }
+      ],
+      "type": "set-params",
+      "skip": false,
+      "label": "Boost Content Type"
+    },
+    {
+      
+      "fieldFacets": [
+        {
+          "field": "product_line_s",
+          "limit": 1000,
+          "minCount": 1,
+          "missing": false,
+          "ensuredValues": [
+            "Attachments",
+            "Equipment",
+            "Accessories",
+            "Technology",
+            "Power Systems",
+            "parts"
+          ]
+        },
+        {
+          "field": "industries_applications_s",
+          "sort": "count",
+          "limit": 100,
+          "minCount": 1,
+          "missing": false
+        },
+        {
+          "field": "path_s",
+          "sort": "index",
+          "limit": 100,
+          "minCount": 1,
+          "missing": false
+        },
+        {
+          "field": "language",
+          "sort": "index",
+          "limit": 100,
+          "minCount": 1,
+          "missing": false
+        },
+        {
+          "field": "product_ss",
+          "sort": "count",
+          "limit": 1000,
+          "minCount": 1,
+          "missing": false
+        },
+        {
+          "field": "industryapps_ss",
+          "sort": "count",
+          "limit": 100,
+          "minCount": 1,
+          "missing": false
+        },
+        {
+          "field": "path_ss",
+          "sort": "index",
+          "limit": 100,
+          "minCount": 1,
+          "missing": false
+        },
+        {
+          "field": "facet_doc_type",
+          "limit": 100,
+          "minCount": 1,
+          "missing": false
+        }
+      ],
+      "rangeFacets": [],
+      "type": "facet",
+      "skip": false
+    },
+    {
+      
+      "fieldFacets": [
+        {
+          "field": "product_line_facet_ss",
+          "sort": "count",
+          "limit": 100,
+          "minCount": 1,
+          "missing": false
+        }
+      ],
+      "rangeFacets": [],
+      "type": "facet",
+      "skip": false,
+      "label": "Facets [Phase 2]"
+    },
+    {
+      
+      "script": "function (request, response, ctx, collection, solrServer, solrServerFactory) {\n\n \n\n  var QF_PARAM = \"qf\";\n  // extract field/weight from: (<field>)^(<weight>)\n  var QF_REGEX = \"([^\\\\^]+)\\\\^([0-9\\.]+)\"\n  // multipliers on the weight in qf= to use with pf=/pf2=/pf3=\n  var QF_PF_MULTIPLIER = 5.0;\n  var QF_PF2_MULTIPLIER = 2.0;\n  var QF_PF3_MULTIPLIER = 3.0;\n\n \n\n  var PF_FORMAT = \"%s^%f\";\n  var PF_PARAM = \"pf\";\n  var PF2_PARAM = \"pf2\";\n  var PF3_PARAM = \"pf3\";\n\n \n\n  var PS = \"1\";\n  var PS2 = \"1\";\n  var PS3 = \"1\";\n  var PS_PARAM = \"ps\";\n  var PS2_PARAM = \"ps2\";\n  var PS3_PARAM = \"ps3\";\n\n \n\n  var qfParams = new java.util.ArrayList(request.getParam(QF_PARAM));\n  if (null !== qfParams && !qfParams.isEmpty()) {\n    var qfRegex = java.util.regex.Pattern.compile(QF_REGEX);\n    for (var i = 0; i < qfParams.size(); i++) {\n      var qfParam = qfParams.get(i);\n      if (null !== qfParam) {\n        var qfMatcher = qfRegex.matcher(qfParam);\n        if (qfMatcher.find()) {\n          var field = qfMatcher.group(1);\n          var weight = qfMatcher.group(2);\n          if (null !== field && null !== weight) {\n            var weightD = java.lang.Double.valueOf(weight);\n            // pf=, pf2=, pf3=\n            request.addParam(PF_PARAM, java.lang.String.format(PF_FORMAT, field,\n                (QF_PF_MULTIPLIER * weightD)));\n            request.addParam(PF2_PARAM, java.lang.String.format(PF_FORMAT, field,\n                (QF_PF2_MULTIPLIER * weightD)));\n            request.addParam(PF3_PARAM, java.lang.String.format(PF_FORMAT, field,\n                (QF_PF3_MULTIPLIER * weightD)));\n          }\n        }\n      }\n    }\n    // ps=, ps2=, ps3=\n    request.addParam(PS_PARAM, PS);\n    request.addParam(PS2_PARAM, PS2);\n    request.addParam(PS3_PARAM, PS3);\n  }\n  return request;\n}",
+      "shareState": true,
+      "type": "javascript-query",
+      "skip": true,
+      "label": "Phrase Boosting"
+    },
+    {
+      
+      "fields": [
+        "title_t",
+        "description_txt",
+        "PARTNUMBER_t",
+        "NAME_t",
+        "LONGDESCRIPTION_t",
+        "body_t",
+        "description_t"
+      ],
+      "count": 1,
+      "length": 500,
+      "pre": "<strong>",
+      "post": "</strong>",
+      "defaultHighlight": true,
+      "type": "highlight",
+      "skip": false
+    },
+    {
+      
+      "script": "function (request, response, ctx) {\n  request.addParam(\"bq\", \"doc_content_type:\\\"Article\\\"^60\")\n  request.addParam(\"bq\", \"doc_content_type:\\\"Support\\\"^60\")\n  request.addParam(\"bq\", \"doc_content_type:\\\"Blog\\\"^50\")\n}",
+      "shareState": true,
+      "type": "javascript-query",
+      "skip": false,
+      "label": "[Phase 3] Handle Query Intent - Manuals",
+      "condition": "request.hasParam(\"query_intent\") && (request.getFirstFieldValue(\"query_intent\").toUpperCase() === \"manuals/training\".toUpperCase() || request.getFirstFieldValue(\"query_intent\").toUpperCase() === \"warranty\".toUpperCase() || request.getFirstFieldValue(\"query_intent\").toUpperCase() === \"SIS/SOS/fluid-oil analysis\".toUpperCase())"
+    },
+    {
+      
+      "script": "function (request, response, ctx) {\n  request.addParam(\"bq\", \"doc_content_type:\\\"Family Page\\\"^50\")\n  request.addParam(\"bq\", \"doc_content_type:\\\"Sub-Family Page\\\"^40\")\n  request.addParam(\"bq\", \"doc_content_type:\\\"Landing Page\\\"^20\")\n  request.addParam(\"bq\", \"product_line_1_ss:\\\"Power Systems\\\"^20\")\n  request.addParam(\"bq\", \"product_line_1_ss:\\\"Equipment\\\"^50\")\n}",
+      "shareState": true,
+      "type": "javascript-query",
+      "skip": false,
+      "label": "[Phase 3] Handle Query Intent - Product Name",
+      "condition": "request.hasParam(\"query_intent\") && request.getFirstFieldValue(\"query_intent\").toUpperCase() === \"product name\".toUpperCase()"
+    },
+    {
+      
+      "script": "function (request, response, ctx) {\n  request.addParam(\"bq\", \"doc_content_type:\\\"Landing Page\\\"^40\")\n  request.addParam(\"bq\", \"product_line_1_ss:\\\"Power Systems\\\"^20\")\n  request.addParam(\"bq\", \"product_line_1_ss:\\\"Equipment\\\"^20\")\n  request.addParam(\"qf\", \"model_name_leaf^30\")\n  request.addParam(\"qf\", \"model_name_leaf_variant^20.0\")\n}",
+      "shareState": true,
+      "type": "javascript-query",
+      "skip": false,
+      "label": "[Phase 3] Handle Query Intent - Model Number",
+      "condition": "request.hasParam(\"query_intent\") && request.getFirstFieldValue(\"query_intent\").toUpperCase() === \"product model number\".toUpperCase()"
+    },
+    {
+      
+      "script": "function (request, response, ctx) {\n  request.addParam(\"bq\", \"doc_content_type:\\\"Parts\\\"^40\")\n  request.addParam(\"qf\", \"partnumber_exact^20\")\n  request.addParam(\"qf\", \"PARTNUMBER_t^20\")\n  request.addParam(\"qf\", \"part_suggest_number^20.0\")\n}",
+      "shareState": true,
+      "type": "javascript-query",
+      "skip": false,
+      "label": "[Phase 3] Handle Query Intent - Part Number",
+      "condition": "request.hasParam(\"query_intent\") && request.getFirstFieldValue(\"query_intent\").toUpperCase() === \"parts\".toUpperCase()"
+    },
+    {
+      
+      "useOriginalQueryIfNoRulesMatch": false,
+      "matchPartialFilterQueries": true,
+      "handler": "select",
+      "method": "POST",
+      "ruleLimit": "100",
+      "params": [
+        {
+          "key": "fq",
+          "value": "groups:cat"
+        }
+      ],
+      "hierarchicalFilter": [],
+      "headers": [],
+      "maxWaitMs": 500,
+      "type": "query-rules",
+      "skip": false
+    },
+    {
+      
+      "script": "function (request, response, ctx) {\n\n  var existingAppliedRules = ctx.get(\"lw.rules\");\n  if(existingAppliedRules)\n  {\n    ctx.put(\"existingRules\", existingAppliedRules);\n  }\n  \n  //Get the query intent from the parameters\n  var intent = request.getFirstFieldValue(\"query_intent\");\n  // Remove current \"tags\" parameters and save the original ones.\n  var currentTags = request.removeParam(\"tags\"); \n  \n  //Based on the query intent, add the tag to trigger the appopiate banner rule.\n  if(intent === \"careers\")\n  {\n   request.addParam(\"tags\", \"careers_intent\");\n  }  \n  if(intent === \"merchandise\")\n  {\n    request.addParam(\"tags\", \"merchandise_intent\");\n  }\n  if(intent === \"account/finance\")\n  {\n   request.addParam(\"tags\", \"account/finance_intent\");\n  }\n\n //Add the original \"tag\" parameters back.\n //Note: This process of removing the original tags, inserting the banner rule tag first, and then adding back the original tags, is necessary\n //because it seems like Fusion only checks the first tag in the array and ignores the rest when triggering rules.\n  currentTags.stream().forEach(function(el) { request.addParam(\"tags\",el) })\n}",
+      "shareState": true,
+      "type": "javascript-query",
+      "skip": false,
+      "label": "[Phase 3] Handle Query Intent - Banner Strategy",
+      "condition": "request.hasParam(\"query_intent\") && (request.getFirstFieldValue(\"query_intent\").toUpperCase() === \"merchandise\".toUpperCase() || request.getFirstFieldValue(\"query_intent\").toUpperCase() === \"careers\".toUpperCase() || request.getFirstFieldValue(\"query_intent\").toUpperCase() === \"account/finance\".toUpperCase())"
+    },
+    {
+      
+      "useOriginalQueryIfNoRulesMatch": true,
+      "matchPartialFilterQueries": false,
+      "handler": "select",
+      "method": "POST",
+      "ruleLimit": "100",
+      "params": [
+        {
+          "key": "fq",
+          "value": "groups:intent"
+        }
+      ],
+      "hierarchicalFilter": [],
+      "headers": [],
+      "maxWaitMs": 500,
+      "type": "query-rules",
+      "skip": false,
+      "label": "[Phase 3] Apply Intent Rules",
+      "condition": "request.hasParam(\"query_intent\") && (request.getFirstFieldValue(\"query_intent\").toUpperCase() === \"merchandise\".toUpperCase() || request.getFirstFieldValue(\"query_intent\").toUpperCase() === \"careers\".toUpperCase() || request.getFirstFieldValue(\"query_intent\").toUpperCase() === \"account/finance\".toUpperCase())"
+    },
+    {
+      
+      "script": "function (request, response, ctx) {\n  var Collections = Java.type(\"java.util.Collections\");\n  var existingRules = ctx.get(\"existingRules\")\n  var intentRules = ctx.get(\"lw.rules\")\n\n  if(intentRules && existingRules) {\n    intentRules.stream().forEach(function(rule) { existingRules.add(rule) })  \n    Collections.sort(existingRules, function(a, b) {\n      return b[\"priority\"] - a[\"priority\"]; \n    });\n  }\n\n  if(!existingRules && intentRules)\n  {\n    ctx.set(\"lw.rules\", intentRules)\n  }\n  else if (existingRules)\n  {\n    ctx.set(\"lw.rules\", existingRules)\n  }\n}",
+      "shareState": true,
+      "type": "javascript-query",
+      "skip": false,
+      "label": "[Phase 3] Merge Intent Rules With Previous Rules",
+      "condition": "request.hasParam(\"query_intent\") && (request.getFirstFieldValue(\"query_intent\").toUpperCase() === \"merchandise\".toUpperCase() || request.getFirstFieldValue(\"query_intent\").toUpperCase() === \"careers\".toUpperCase() || request.getFirstFieldValue(\"query_intent\").toUpperCase() === \"account/finance\".toUpperCase())"
+    },
+    {
+      
+      "httpMethod": "POST",
+      "allowFederatedSearch": false,
+      "preferredReplicaType": "pull",
+      "type": "solr-query",
+      "skip": false,
+      "responseSignalsEnabled": true
+    },
+    {
+      
+      "script": "function (request, response, ctx) {\r\n  if(response && typeof(response.getInnerResponse) === 'function'){\r\n    var ir = response.getInnerResponse();\r\n    ctx.put(\"numFound\" , ir.getNumFound().get());\r\n  }\r\n\r\n}",
+      "shareState": true,
+      "type": "javascript-query",
+      "skip": false,
+      "label": "Get Numfound records",
+      "condition": ""
+    },
+    {
+      
+      "params": [
+        {
+          "key": "mm",
+          "value": "1<1",
+          "policy": "replace"
+        }
+      ],
+      "type": "set-params",
+      "skip": false,
+      "label": "Change MM parameter",
+      "condition": "ctx.numFound == 0"
+    },
+    {
+      
+      "httpMethod": "POST",
+      "allowFederatedSearch": false,
+      "preferredReplicaType": "pull",
+      "type": "solr-query",
+      "skip": false,
+      "label": "Solr Query with 1<1",
+      "condition": "ctx.numFound == 0",
+      "responseSignalsEnabled": true
+    },
+    {
+      
+      "script": "function (request, response, ctx) {\n  if(response && typeof(response.getInnerResponse) === 'function'){\n    var ir = response.getInnerResponse();\n    ctx.put(\"numFound\" , ir.getNumFound().get());\n  }\n\n}",
+      "shareState": true,
+      "type": "javascript-query",
+      "skip": false,
+      "label": "Get NumFound Records Spellcheck"
+    },
+    {
+      
+      "script": "function (request, response, ctx) {\n  /*\n  Description:\n  Determine if there are 0 results and if collation is included in the response.\n  If both conditions are true, parse response and identify the collation term with most documents found.\n  Add content to the response and to the context in preparation for a new query with the collation term selected.\n   */  \n  var ArrayList = Java.type('java.util.ArrayList');\n  var LinkedHashMap = Java.type('java.util.LinkedHashMap');\n  var DocumentBuilder = Java.type('javax.xml.parsers.DocumentBuilder');\n  var DocumentBuilderFactory = Java.type('javax.xml.parsers.DocumentBuilderFactory');\n  var ParserConfigurationException = Java.type('javax.xml.parsers.ParserConfigurationException');\n  var XPath = Java.type('javax.xml.xpath.XPath');\n  var XPathConstants = Java.type('javax.xml.xpath.XPathConstants');\n  var XPathExpression = Java.type('javax.xml.xpath.XPathExpression');\n  var XPathExpressionException = Java.type('javax.xml.xpath.XPathExpressionException');\n  var XPathFactory = Java.type('javax.xml.xpath.XPathFactory');\n  var Document = Java.type('org.w3c.dom.Document');\n  var NodeList = Java.type('org.w3c.dom.NodeList');\n  var SAXException = Java.type('org.xml.sax.SAXException');\n  var InputSource = Java.type('org.xml.sax.InputSource');\n  var StringReader = Java.type('java.io.StringReader');\n\n\n  //NOTE: Solr response needs to be parsed differently if the response was configured as XML or JSON.\n  //Both cases are handled below\n\n\n  function json_processing(response){ \n        var spellcheck = response.getInnerResponse().getSpellcheck();\n        var ir = response.getInnerResponse();\n        if(spellcheck && spellcheck.get(\"collations\") && spellcheck.get(\"collations\").size() > 0){\n          var collations = spellcheck.get(\"collations\");\n          var collationSize = 0;\n          ctx.put(\"hasCollation\", true);\n          var max = 0;\n          var collationQuery = \"\";\n          var otherQueries = new ArrayList();\n          // var debug_className = \"\";\n          for( var i=0; i < collations.size(); i++) {\n            var collation = collations.get(i);\n            var className = collation.getClass().getName();\n            // debug_className = debug_className + \" \" + className;\n            var hits = 0;\n            var query = \"\";\n            if(className == \"java.util.LinkedHashMap\"){\n              hits = collation.get(\"hits\");\n              query = collation.get(\"collationQuery\");\n              otherQueries.add(query);\n              collationSize++;\n            }\n            if(className == \"java.util.ArrayList\" && collation.size() > 0){\n              for( var j=0; j < collation.size(); j++){\n                var innerCollation = collation.get(j);\n                className = innerCollation.getClass().getName();\n                if(className == \"java.util.LinkedHashMap\"){\n                  hits = innerCollation.get(\"hits\");\n                  query = innerCollation.get(\"collationQuery\");\n                  otherQueries.add(query);\n                  collationSize++;\n                }\n              }\n            }\n            var hits_int = parseInt(hits); \n            if(hits_int >= max){\n              max = hits_int;\n              collationQuery = query;\n            }\n          }\n          otherQueries.remove(collationQuery);//Remove the collation that will be used for search\n\n          ctx.put(\"collationQuery\" , collationQuery);\n          ctx.put(\"otherQueries\", otherQueries);          \n          // ctx.put(\"debug_className\", debug_className);\n\n          // debug, these will be removed after the new query excecutes\n          ir.appendString(\"hasCollation\" , true);\n          ir.appendString(\"collationSize\", collationSize);\n          ir.appendString(\"collationQuery\" , collationQuery);\n        }      \n  }\n\n  function xml_processing(response){\n    try{\n        //A bug was found in XMLResponse.getCollations() where one collation is returned.\n        //Bug can be found here: https://support.lucidworks.com/hc/en-us/requests/16780\n        //https://doc.lucidworks.com/fusion-pipeline-javadocs/5.4/com/lucidworks/apollo/solr/response/XMLResponse.html\n        //The current workaround parses the entire inner response XML and uses XPath to extract the collation nodes.\n\n        var xml = response.getInnerResponse().toString();        \n        var ir = response.getInnerResponse();\n        var builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();\n        var doc = builder.parse(new InputSource(new StringReader(xml)));\n        //1. Get all the collation alternative xml objects\n        var xpath = XPathFactory.newInstance().newXPath();\n        var expression = \"/response/lst[@name='spellcheck']/lst[@name='collations']/lst[@name='collation']\";\n        var nodes = xpath.evaluate(expression, doc, XPathConstants.NODESET);\n        if(nodes && nodes.getLength() > 0){\n          var max = 0;\n          var collationQuery = \"\";\n          var otherQueries = new ArrayList();\n          var collationSize = nodes.getLength();\n          ctx.put(\"hasCollation\", true);\n          for (var i=0; i < nodes.getLength(); i++) {\n\n            //2. Extract the collation query term\n            xpath = XPathFactory.newInstance().newXPath();\n            expression = \"str[@name='collationQuery']/text()\";\n            var node = xpath.evaluate(expression, nodes.item(i), XPathConstants.NODE);\n            var query = node.getNodeValue();\n            \n            //3. Extract the collation hit count\n            xpath = XPathFactory.newInstance().newXPath();\n            expression = \"long[@name='hits']/text()\";\n            node = xpath.evaluate(expression, nodes.item(i), XPathConstants.NODE);\n            var hits = node.getNodeValue();\n\n            otherQueries.add(query);\n            var hits_int = parseInt(hits); \n            if(hits_int >= max){\n              max = hits_int;\n              collationQuery = query;\n            }\n          }\n          otherQueries.remove(collationQuery);//Remove the collation that will be used for search\n\n          ctx.put(\"collationQuery\" , collationQuery);\n          ctx.put(\"otherQueries\", otherQueries);\n\n          // debug, these will be removed after the new query excecutes\n          ir.appendString(\"hasCollation\" , true);\n          ir.appendString(\"collationSize\", collationSize);\n          ir.appendString(\"collationQuery\" , collationQuery);\n        }\n      }\n      catch (err) {\n        if(err instanceof ParserConfigurationException){\n            logger.error(\"ERROR: QueryPipeline.CAT Stage.Collation Processing (ParserConfigurationException) \" + err.toString());\n        }\n        else if(err instanceof SAXException){\n            logger.error(\"ERROR: QueryPipeline.CAT Stage.Collation Processing (SAXException) \" + err.toString());\n        }\n        else{\n            throw err;\n        }\n      }\n  }\n\n  try{\n  \n    var origQuery = request.getFirstFieldValue('q');\n    var wt = \"json\"; //used to foce response type to XML or JSON (default)\n    if(request.hasParam('wt'))\n    {\n      wt = request.getFirstFieldValue('wt');\n    }\n    ctx.put(\"hasCollation\", false);\n    \n    if(response && typeof(response.getInnerResponse) === 'function'){\n      var spellcheck = response.getInnerResponse().getSpellcheck();\n      if(spellcheck && spellcheck.get(\"collations\")){\n        ctx.put(\"oQuery\", origQuery);\n        request.addParam(\"zeroResultsQ\", origQuery);\n        var collationClass = spellcheck.get(\"collations\").getClass().getName();\n        \n        //If response is in XML, collations object is returned as linked hasmap\n        if(wt == \"xml\" && collationClass == \"java.util.LinkedHashMap\"){\n          xml_processing(response);\n        }\n        //If response is in JSON, collations object is returned as an array list.\n        else if(wt == \"json\" && collationClass == \"java.util.ArrayList\"){\n          json_processing(response);\n        }\n\n      }\n    }\n    \n  }\n  catch (e) {\n        logger.error(\"QueryPipeline.CAT Stage.Collation Processing \" + e.toString());    \n  }\n\n  return response;\n}",
+      "shareState": true,
+      "type": "javascript-query",
+      "skip": false,
+      "label": "Collation Processing",
+      "condition": "ctx.numFound == 0"
+    },
+    {
+      
+      "params": [
+        {
+          "key": "q",
+          "value": "<ctx.collationQuery>",
+          "policy": "replace"
+        }
+      ],
+      "type": "set-params",
+      "skip": false,
+      "label": "Update Collation Query Params",
+      "condition": "ctx.hasCollation == true"
+    },
+    {
+      
+      "useOriginalQueryIfNoRulesMatch": true,
+      "matchPartialFilterQueries": true,
+      "handler": "select",
+      "method": "POST",
+      "ruleLimit": "100",
+      "params": [
+        {
+          "key": "fq",
+          "value": "groups:cat"
+        }
+      ],
+      "hierarchicalFilter": [],
+      "headers": [],
+      "maxWaitMs": 500,
+      "type": "query-rules",
+      "skip": false,
+      "label": "Apply Rules with Spellcheck",
+      "condition": "ctx.hasCollation == true"
+    },
+    {
+      
+      "allowedRequestHandlers": [
+        "select",
+        "spell"
+      ],
+      "httpMethod": "POST",
+      "allowFederatedSearch": false,
+      "preferredReplicaType": "pull",
+      "type": "solr-query",
+      "skip": false,
+      "label": "Solr Query Using Collation",
+      "condition": "ctx.hasCollation == true",
+      "responseSignalsEnabled": true
+    },
+    {
+      
+      "script": "(function () {\n  return function(request,response , ctx, collection, solrServer, solrServerFactory) {\n    var resp=response.getInnerResponse();\n    \n    var originalQuery = ctx.get(\"oQuery\");\n    var spellcheckQuery = ctx.get(\"collationQuery\");\n    var otherQueries = ctx.get(\"otherQueries\");\n    var otherQuery = ctx.get(\"otherQuery\");\n    var collationType = ctx.get(\"collationType\");\n    var debug_className = ctx.get(\"debug_className\");\n    var debug_value = ctx.get(\"debug_value\");\n    var hasCollation = ctx.get(\"hasCollation\");\n    ///var numFound = ctx.get(\"numFound\");\n\n    if(originalQuery){\n      resp.appendString(\"originalQuery\",originalQuery);\n    }\n    if(spellcheckQuery){\n      resp.appendString(\"spellcheckQuery\",spellcheckQuery);\n    }\n    if(otherQueries){\n      resp.appendStringList(\"otherQueries\",otherQueries);\n    }\n    if(collationType){\n      resp.appendString(\"collationType\",collationType);\n    }\n    if(debug_className){\n      resp.appendString(\"debug_className\",debug_className);\n    }\n    if(debug_value){\n      resp.appendString(\"debug_value\",debug_value);\n    }\n    if(hasCollation){\n      resp.appendString(\"didYouMean\",\"true\");\n    }\n    else{\n      resp.appendString(\"didYouMean\",\"false\");\n    }\n    /* if(numFound){\n     resp.appendString(\"numFound\",numFound);\n    }*/\n    return response;\n  };\n})();",
+      "shareState": true,
+      "type": "javascript-query",
+      "skip": false,
+      "label": "Edit Response"
+    },
+    {
+      
+      "facetLabelParseDelimiter": "||",
+      "type": "query-rules-augment-response",
+      "skip": false
+    }
+  ],
+  "properties": {
+    "supportedMode": "all",
+    "secretSourcePipelineId": "CAT"
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "id": "P3_Semantic_Search_POC",
+  "stages": [
+    {
+      
+      "script": "function (doc, ctx) {\n  var start = new Date();\n  ctx.put(\"startTime\", start)\n  return doc;\n}",
+      "type": "javascript-index",
+      "skip": true,
+      "label": "Capture Initial Time"
+    },
+    {
+      
+      "modelId": "cat-query-embeddings-model",
+      "failOnError": true,
+      "storeInContext": false,
+      "contextKey": "",
+      "inputScript": "var modelInput = new java.util.HashMap()\nmodelInput.put(\"text\", doc.getFirstFieldValue(\"text_to_embed\"));\nmodelInput\n\n\n/*\n\nThis script must construct a HashMap containing fields and values to be sent to the ML model service.\nThe field names and values will depend on the input schema of the model.\nGenerally, you'll be reading fields and values from the request/context/response and placing them into a HashMap.\n\nValue types supported are:\n- String\n- Double\n- String[]\n- double[]\n- List<String>\n- List<Number>\n\nThis script receives these objects and can be referenced in your script:\n- request\n- response\n- context\n- log (Logger useful for debugging)\n\nThe last line of the script must be a reference to the HashMap object you created.\n\nExample 1: Single pipeline doc's field value to modelInput HashMap\nvar modelInput = new java.util.HashMap()\nmodelInput.put(\"input_1\", doc.getFirstFieldValue(\"my_field\"))\nmodelInput\n\nExample 2: List of strings from pipeline doc's field to modelInput HashMap\nvar modelInput = new java.util.HashMap()\nmodelInput.put(\"input_1\", doc.getFieldValues(\"my_field\")) // doc.getValues returns a Collection\nmodelInput\n\nExample 3: List of numeric values from the pipeline doc's fields to modelInput HashMap\nvar modelInput = new java.util.HashMap()\nvar list = new java.util.ArrayList()\nlist.add(Double.parseDouble(doc.getFirstFieldValue(\"numeric_field_1\")))\nlist.add(Double.parseDouble(doc.getFirstFieldValue(\"numeric_field_2\")))\nmodelInput.put(\"input_1\", list)\nmodelInput\n\nExample 4: If you have created the model using Fusion ML Spark jobs, then use the following code\nvar modelInput = new java.util.HashMap()\nmodelInput.put(\"concatField\", doc.getFieldValues(\"my_field\"))\nmodelInput\n\n*/\n",
+      "outputScript": "if (modelOutput[\"output1\"])\n{\n doc.addField(\"embeddings_vector\", modelOutput[\"output1\"]);\n context.put(\"embeddings_vector\", modelOutput[\"output1\"]);\n}\n\n/*\nThis output script receives the output prediction from the ML model service as a HashMap called \"modelOutput\".\nMost of the time this is used to place prediction results in the request or context for downstream pipeline stages\nto consume.\n\nThis script receives these objects and can be referenced in your script:\n- modelOutput (a HashMap containing fields/values returned from ML model service)\n- doc\n- context\n- log (Logger useful for debugging)\n\nExample: Add predictedLabel (string) into pipeline doc as a field\ndoc.addField(\"sentiment\", modelOutput.get(\"predictedLabel\"))\n\n*/\n",
+      "storePredictedFields": false,
+      "type": "machine-learning",
+      "skip": false,
+      "label": "Generate Vector Embedding"
+    },
+    {
+      
+      "script": "function (doc, ctx) {\n  var checkLength = ctx.get(\"embeddings_vector\").length;\n  return doc;\n}",
+      "type": "javascript-index",
+      "skip": false,
+      "label": "Force exception on vector generation error"
+    },
+    {
+      
+      "translationMappings": [
+        {
+          "source": "subfamily",
+          "target": "subfamily_s",
+          "operation": "copy"
+        },
+        {
+          "source": "subfamily",
+          "target": "subfamily_t",
+          "operation": "move"
+        }
+      ],
+      "retentionMappings": [
+        {
+          "field": "id",
+          "operation": "keep"
+        },
+        {
+          "field": "seq",
+          "operation": "keep"
+        },
+        {
+          "field": "url",
+          "operation": "keep"
+        },
+        {
+          "field": "type",
+          "operation": "keep"
+        },
+        {
+          "field": "title",
+          "operation": "keep"
+        },
+        {
+          "field": "text_orig",
+          "operation": "keep"
+        },
+        {
+          "field": "text_to_embed",
+          "operation": "keep"
+        },
+        {
+          "field": "thumbnail",
+          "operation": "keep"
+        },
+        {
+          "field": "embeddings_vector",
+          "operation": "keep"
+        }
+      ],
+      "updateMappings": [],
+      "unmappedRule": {
+        "keep": false,
+        "delete": true,
+        "fieldToMoveValuesTo": "",
+        "fieldToCopyValuesTo": "",
+        "valueToAddToUnmappedFields": "",
+        "valueToSetOnUnmappedFields": ""
+      },
+      "reservedFieldsMappingAllowed": true,
+      "type": "field-mapping",
+      "skip": false
+    },
+    {
+      
+      "enforceSchema": false,
+      "fieldsList": false,
+      "dateFormats": [],
+      "params": [],
+      "bufferDocsForSolr": true,
+      "allowBlacklistedRequestParameters": false,
+      "type": "solr-index",
+      "skip": false
+    },
+    {
+      
+      "script": "function (doc, ctx) {\n  var end = new Date() - ctx.get(\"startTime\");\n  logger.info(\"perf_test_index_duration: \" + end)\n  return doc;\n}",
+      "type": "javascript-index",
+      "skip": true,
+      "label": "Capture End Time"
+    }
+  ],
+  "properties": {
+    "secretSourcePipelineId": "P3_Semantic_Search_POC"
+  }
+}
